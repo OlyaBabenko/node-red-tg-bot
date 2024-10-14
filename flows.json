@@ -1,0 +1,1131 @@
+[
+    {
+        "id": "8926a82e5f9ba386",
+        "type": "tab",
+        "label": "Поток 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "22b2aea916deb159",
+        "type": "postgreSQLConfig",
+        "name": "dbConnection",
+        "host": "PG_HOST",
+        "hostFieldType": "env",
+        "port": "PG_PORT",
+        "portFieldType": "env",
+        "database": "PG_DATABASE",
+        "databaseFieldType": "env",
+        "ssl": "false",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": "10",
+        "maxFieldType": "num",
+        "idle": "1000",
+        "idleFieldType": "num",
+        "connectionTimeout": "10000",
+        "connectionTimeoutFieldType": "num",
+        "user": "PG_USER",
+        "userFieldType": "env",
+        "password": "PG_PASSWORD",
+        "passwordFieldType": "env"
+    },
+    {
+        "id": "36b330d79290bc3b",
+        "type": "http in",
+        "z": "8926a82e5f9ba386",
+        "name": "tg_webhook",
+        "url": "/webhook",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "a7b7af5bfba1c1bc"
+            ]
+        ]
+    },
+    {
+        "id": "1fc7da29e146eda2",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createStartMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nlet chat_id = msg.receiver;\n\nmsg.payload = {\n    chat_id: chat_id,\n    text: \"Hello! Choose what you want to do 😏\",\n    reply_markup: {\n        keyboard: [[\n            'Add new contact'\n        ], [\n            'Show all contacts'\n        ], [\n            'Show birthday by contact name'\n        ]],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 220,
+        "wires": [
+            [
+                "e4993ca6b09acc1a"
+            ]
+        ]
+    },
+    {
+        "id": "a7b7af5bfba1c1bc",
+        "type": "change",
+        "z": "8926a82e5f9ba386",
+        "name": "receiverId",
+        "rules": [
+            {
+                "t": "set",
+                "p": "receiver",
+                "pt": "msg",
+                "to": "payload.message.from.id",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 300,
+        "y": 240,
+        "wires": [
+            [
+                "ac6d755e90371ddb"
+            ]
+        ]
+    },
+    {
+        "id": "677c2cfe47d81ee5",
+        "type": "http response",
+        "z": "8926a82e5f9ba386",
+        "name": "status 200",
+        "statusCode": "",
+        "headers": {},
+        "x": 2550,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "9651246134a7428a",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "buttons",
+        "property": "payload.message.text",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "Add new contact",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "Show all contacts",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "Show birthday by contact name",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 680,
+        "y": 400,
+        "wires": [
+            [
+                "535f92192dfda8b5"
+            ],
+            [
+                "c3d1a4c752e95d9a"
+            ],
+            [
+                "458b4b50339433dc"
+            ],
+            [
+                "a80b18ab672ec2c1"
+            ]
+        ]
+    },
+    {
+        "id": "ac6d755e90371ddb",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "isStart",
+        "property": "payload.message.text",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "/start",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 470,
+        "y": 240,
+        "wires": [
+            [
+                "157c3220c5771fd8"
+            ],
+            [
+                "9651246134a7428a"
+            ]
+        ]
+    },
+    {
+        "id": "535f92192dfda8b5",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\n\nmsg.params = ['create name', msg.receiver];\nmsg.chat = msg.payload;\nmsg.payload = {\n    chat_id: msg.receiver,\n    text: \"Well, enter the new contact name.\",\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 320,
+        "wires": [
+            [
+                "e4993ca6b09acc1a",
+                "fa79ddd2907898f3"
+            ]
+        ]
+    },
+    {
+        "id": "c3d1a4c752e95d9a",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "showAllContactsParams",
+        "func": "msg.params = [msg.receiver];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 360,
+        "wires": [
+            [
+                "4df5f1933eef3b5c"
+            ]
+        ]
+    },
+    {
+        "id": "e4993ca6b09acc1a",
+        "type": "http request",
+        "z": "8926a82e5f9ba386",
+        "name": "Send to Telegram",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "body",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1730,
+        "y": 180,
+        "wires": [
+            [
+                "677c2cfe47d81ee5",
+                "94c78ee3be6b28ae"
+            ]
+        ]
+    },
+    {
+        "id": "383b12ac5752e238",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "status",
+        "property": "payload[0].status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "create name",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "create birth",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "show birth",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 1150,
+        "y": 540,
+        "wires": [
+            [
+                "e360dcabdc46fd80"
+            ],
+            [
+                "e8fc5c8b01e064d6"
+            ],
+            [
+                "c8f864e1ebceb63d"
+            ]
+        ]
+    },
+    {
+        "id": "c733b2e769a50dea",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "isStatus",
+        "property": "payload[0].status",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nempty"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 820,
+        "y": 540,
+        "wires": [
+            [
+                "cf147da76d50a834"
+            ],
+            [
+                "95eaab64142e8849"
+            ]
+        ]
+    },
+    {
+        "id": "97fb9bf03b1b2419",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createContactBirthday",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nconst user_id = msg.receiver;\nglobal.set(\"contact_name_\" + user_id, msg.messageText);\n\nmsg.payload = {\n    chat_id: msg.receiver,\n    text: \"Enter the new contact birthday.\",\n    reply_markup: {\n        keyboard: [],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1820,
+        "y": 460,
+        "wires": [
+            [
+                "9b88df1624951a66"
+            ]
+        ]
+    },
+    {
+        "id": "9b88df1624951a66",
+        "type": "http request",
+        "z": "8926a82e5f9ba386",
+        "name": "Send to Telegram",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "body",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2330,
+        "y": 440,
+        "wires": [
+            [
+                "677c2cfe47d81ee5",
+                "73961902e79184e3"
+            ]
+        ]
+    },
+    {
+        "id": "303799c6e38bccb1",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createSuccessMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\n\nmsg.payload = {\n    chat_id: msg.receiver,\n    text: \"Your new account have been created. Choose what you want to do next 😏\",\n    reply_markup: {\n        keyboard: [['Add new contact'], ['Show all contacts'], ['Show birthday by contact name']],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.params = ['', msg.receiver]\nglobal.set(\"contact_name_\" + msg.receiver, '');\nmsg.statusCode = 200;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1930,
+        "y": 540,
+        "wires": [
+            [
+                "9b88df1624951a66",
+                "a1341867ab63585b"
+            ]
+        ]
+    },
+    {
+        "id": "0b2eba0947f96512",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "create user",
+        "query": "INSERT INTO users (telegram_id, username) VALUES ($1, $2);",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 930,
+        "y": 220,
+        "wires": [
+            [
+                "1fc7da29e146eda2"
+            ]
+        ]
+    },
+    {
+        "id": "248b0305570402ab",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "create contact",
+        "query": "INSERT INTO contacts (user_id, name, birthday) VALUES ($1, $2, $3);",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 1700,
+        "y": 560,
+        "wires": [
+            [
+                "303799c6e38bccb1"
+            ]
+        ]
+    },
+    {
+        "id": "15751f547a828ffe",
+        "type": "inject",
+        "z": "8926a82e5f9ba386",
+        "name": "connect",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "22f23d3154b65ad5"
+            ]
+        ]
+    },
+    {
+        "id": "3a5660c2e9022f6a",
+        "type": "http request",
+        "z": "8926a82e5f9ba386",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 390,
+        "y": 80,
+        "wires": [
+            [
+                "7356445262f8de90"
+            ]
+        ]
+    },
+    {
+        "id": "7356445262f8de90",
+        "type": "debug",
+        "z": "8926a82e5f9ba386",
+        "name": "debug 11",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "22f23d3154b65ad5",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "function 4",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nconst ngrokUrl = env.get(\"NGROK_URL\");\nmsg.url = `https://api.telegram.org/bot${tgBotId}/setWebhook?url=${ngrokUrl}/webhook`\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "3a5660c2e9022f6a"
+            ]
+        ]
+    },
+    {
+        "id": "157c3220c5771fd8",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "setParams",
+        "func": "msg.params = [ msg.receiver, msg.payload.message.chat.username ];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 220,
+        "wires": [
+            [
+                "0b2eba0947f96512"
+            ]
+        ]
+    },
+    {
+        "id": "4672d3d2a664350b",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "read user",
+        "query": "SELECT * FROM users WHERE telegram_id=$1;",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 680,
+        "y": 540,
+        "wires": [
+            [
+                "c733b2e769a50dea"
+            ]
+        ]
+    },
+    {
+        "id": "a80b18ab672ec2c1",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "setParams",
+        "func": "msg.params = [msg.receiver];\nmsg.messageText = msg.payload.message.text;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 540,
+        "wires": [
+            [
+                "4672d3d2a664350b"
+            ]
+        ]
+    },
+    {
+        "id": "e8fc5c8b01e064d6",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "setParams",
+        "func": "const moment = global.get('moment');\nconst formats = ['DD.MM.YYYY', 'MM/DD/YYYY', 'DD-MM-YYYY', 'YYYY-MM-DD', 'D.M.YYYY', moment.ISO_8601];\nconst birthday = moment(msg.messageText);\nconst today = moment();\n\nif (!birthday.isValid() || !(birthday <= today)) {\n    msg.errorField = true;\n}\nmsg.name = global.get('contact_name_'+msg.receiver);\nmsg.params = [msg.user_id, msg.name, msg.messageText];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1310,
+        "y": 560,
+        "wires": [
+            [
+                "ef45beb0bcba61d1"
+            ]
+        ]
+    },
+    {
+        "id": "fa79ddd2907898f3",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "setStatus",
+        "query": "UPDATE users SET status=$1 WHERE telegram_id=$2;",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 1240,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e10c2a6ed08324ef",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "update user",
+        "query": "UPDATE users SET status=$1 WHERE telegram_id=$2;",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 1610,
+        "y": 460,
+        "wires": [
+            [
+                "97fb9bf03b1b2419"
+            ]
+        ]
+    },
+    {
+        "id": "e360dcabdc46fd80",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createParams",
+        "func": "if(msg.messageText.length > 100) {\n    msg.errorField = 'Too much characters in your new contact name. Please try again.'\n}\nmsg.params = ['create birth', msg.receiver];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1300,
+        "y": 440,
+        "wires": [
+            [
+                "e42145aea72adf0d"
+            ]
+        ]
+    },
+    {
+        "id": "73961902e79184e3",
+        "type": "debug",
+        "z": "8926a82e5f9ba386",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2560,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "69555710db047b9b",
+        "type": "catch",
+        "z": "8926a82e5f9ba386",
+        "name": "catch create user",
+        "scope": [
+            "0b2eba0947f96512"
+        ],
+        "uncaught": false,
+        "x": 940,
+        "y": 180,
+        "wires": [
+            [
+                "1fc7da29e146eda2"
+            ]
+        ]
+    },
+    {
+        "id": "94c78ee3be6b28ae",
+        "type": "debug",
+        "z": "8926a82e5f9ba386",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1960,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "a1341867ab63585b",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "setStatus",
+        "query": "UPDATE users SET status=$1 WHERE telegram_id=$2;",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 2220,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cf147da76d50a834",
+        "type": "change",
+        "z": "8926a82e5f9ba386",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "user_id",
+                "pt": "msg",
+                "to": "payload[0].id",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1000,
+        "y": 540,
+        "wires": [
+            [
+                "383b12ac5752e238"
+            ]
+        ]
+    },
+    {
+        "id": "ef6fdb3961e3d036",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createErrorMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\n\nmsg.payload = {\n    chat_id: msg.receiver,\n    text: \"Date is invalid or can not be later than today ☹️. Please try again.\",\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1760,
+        "y": 500,
+        "wires": [
+            [
+                "9b88df1624951a66"
+            ]
+        ]
+    },
+    {
+        "id": "7e62f5ab4e934e42",
+        "type": "catch",
+        "z": "8926a82e5f9ba386",
+        "name": "catch create contact",
+        "scope": [
+            "248b0305570402ab"
+        ],
+        "uncaught": false,
+        "x": 1490,
+        "y": 520,
+        "wires": [
+            [
+                "ef6fdb3961e3d036"
+            ]
+        ]
+    },
+    {
+        "id": "4df5f1933eef3b5c",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "read contact list",
+        "query": "-- SELECT * FROM users WHERE telegram_id=$1;\nSELECT *\nFROM contacts c\nINNER JOIN users u on u.id = c.user_id\nWHERE u.telegram_id=$1;",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 1320,
+        "y": 360,
+        "wires": [
+            [
+                "a8ac659ad848a0a1"
+            ]
+        ]
+    },
+    {
+        "id": "280cd6215af7aca0",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createSuccessMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nconst moment = global.get('moment');\nconst chat_id = msg.receiver;\nconst contactList = msg.payload.map((contact) => {\n    const formattedBirthday = moment(contact.birthday).format('DD.MM.YYYY');\n    return `Name: ${contact.name}\\nBirthday: ${formattedBirthday}\\n\\n`\n});\nconst contactListString = contactList.join('');\n\nmsg.payload = {\n    chat_id: chat_id,\n    text: `Here is your contact list:\\n\\n${contactListString}Choose what you want to do next😏`,\n    reply_markup: {\n        keyboard: [[\n            'Add new contact'\n        ], [\n            'Show all contacts'\n        ], [\n            'Show birthday by contact name'\n        ]],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1770,
+        "y": 340,
+        "wires": [
+            [
+                "9b88df1624951a66"
+            ]
+        ]
+    },
+    {
+        "id": "458b4b50339433dc",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createMessageForSeachingContact",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nconst user_id = msg.receiver;\nmsg.params = ['show birth', msg.receiver];\n\nmsg.payload = {\n    chat_id: msg.receiver,\n    text: \"Enter the contact name.\",\n    reply_markup: {\n        keyboard: [],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 400,
+        "wires": [
+            [
+                "e4993ca6b09acc1a",
+                "fa79ddd2907898f3"
+            ]
+        ]
+    },
+    {
+        "id": "c8f864e1ebceb63d",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createParams",
+        "func": "msg.params = [msg.user_id, msg.messageText]\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1320,
+        "y": 620,
+        "wires": [
+            [
+                "0e43bd5c20838915"
+            ]
+        ]
+    },
+    {
+        "id": "0e43bd5c20838915",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "read contact by name",
+        "query": "-- SELECT * FROM contacts WHERE user_id=$1 AND name=$2;\nSELECT * \nFROM contacts \nWHERE user_id = $1 \nAND name LIKE '%' || $2 || '%';",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 1540,
+        "y": 620,
+        "wires": [
+            [
+                "aa2ff14021ebce9e"
+            ]
+        ]
+    },
+    {
+        "id": "627540e64a9973aa",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createSuccessMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\n\nconst moment = global.get('moment');\nconst chat_id = msg.receiver;\nconst contactList = msg.payload.map((contact) => `Name: ${contact.name}\\nBirthday: ${moment(contact.birthday).format('DD.MM.YYYY')}\\n\\n`);\nconst contactListString = contactList.join('');\n\nmsg.payload = {\n    chat_id: chat_id,\n    text: `Here is your contact(s):\\n\\n${contactListString}Choose what you want to do next😏`,\n    reply_markup: {\n        keyboard: [[\n            'Add new contact'\n        ], [\n            'Show all contacts'\n        ], [\n            'Show birthday by contact name'\n        ]],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.params = ['', msg.receiver]\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1930,
+        "y": 580,
+        "wires": [
+            [
+                "9b88df1624951a66",
+                "3dbd3c95486c53c4"
+            ]
+        ]
+    },
+    {
+        "id": "3dbd3c95486c53c4",
+        "type": "postgresql",
+        "z": "8926a82e5f9ba386",
+        "name": "setStatus",
+        "query": "UPDATE users SET status=$1 WHERE telegram_id=$2;",
+        "postgreSQLConfig": "22b2aea916deb159",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 2180,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aa2ff14021ebce9e",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "isEmpty",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nempty"
+            },
+            {
+                "t": "empty"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1740,
+        "y": 600,
+        "wires": [
+            [
+                "627540e64a9973aa"
+            ],
+            [
+                "b78b00717af0740e"
+            ]
+        ]
+    },
+    {
+        "id": "b78b00717af0740e",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createErrorMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\n\nconst chat_id = msg.receiver;\n\nmsg.payload = {\n    chat_id: chat_id,\n    text: `Ooops😟! You have no contacts with this name yet.\\nBut you can created it😃`,\n    reply_markup: {\n        keyboard: [[\n            'Add new contact'\n        ], [\n            'Show all contacts'\n        ], [\n            'Show birthday by contact name'\n        ]],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.params = ['', msg.receiver]\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1920,
+        "y": 620,
+        "wires": [
+            [
+                "9b88df1624951a66"
+            ]
+        ]
+    },
+    {
+        "id": "a8ac659ad848a0a1",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "isEmpty",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nempty"
+            },
+            {
+                "t": "empty"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1520,
+        "y": 360,
+        "wires": [
+            [
+                "280cd6215af7aca0"
+            ],
+            [
+                "a4b3df3aeccbccf2"
+            ]
+        ]
+    },
+    {
+        "id": "a4b3df3aeccbccf2",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createErrorMessage",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nconst chat_id = msg.receiver;\nmsg.payload = {\n    chat_id: chat_id,\n    text: `Ooops😟! You have no contacts yet.\\nBut you can create it😃`,\n    reply_markup: {\n        keyboard: [[\n            'Add new contact'\n        ], [\n            'Show all contacts'\n        ], [\n            'Show birthday by contact name'\n        ]],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1760,
+        "y": 380,
+        "wires": [
+            [
+                "9b88df1624951a66"
+            ]
+        ]
+    },
+    {
+        "id": "95eaab64142e8849",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "ErrorCommand",
+        "func": "const tgBotId = env.get(\"TG_BOT_ID\");\nconst chat_id = msg.receiver;\n\nmsg.payload = {\n    chat_id: chat_id,\n    text: `I don't know this command😟. You can use buttons`,\n    reply_markup: {\n        keyboard: [[\n            'Add new contact'\n        ], [\n            'Show all contacts'\n        ], [\n            'Show birthday by contact name'\n        ]],\n        resize_keyboard: true,\n        one_time_keyboard: false\n    }\n};\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 500,
+        "wires": [
+            [
+                "e4993ca6b09acc1a"
+            ]
+        ]
+    },
+    {
+        "id": "e42145aea72adf0d",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "isError",
+        "property": "errorField",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nempty"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1450,
+        "y": 440,
+        "wires": [
+            [
+                "c27dd5f36716c988"
+            ],
+            [
+                "e10c2a6ed08324ef"
+            ]
+        ]
+    },
+    {
+        "id": "c27dd5f36716c988",
+        "type": "function",
+        "z": "8926a82e5f9ba386",
+        "name": "createErrorNameMessage",
+        "func": "const user_id = msg.receiver;\nconst tgBotId = env.get(\"TG_BOT_ID\");\n\nmsg.payload = {\n    chat_id: msg.receiver,\n    text: msg.errorField,\n}\nmsg.url = `https://api.telegram.org/bot${tgBotId}/sendMessage`\n\nmsg.statusCode = 200;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1660,
+        "y": 420,
+        "wires": [
+            [
+                "9b88df1624951a66"
+            ]
+        ]
+    },
+    {
+        "id": "1e2d18365890540c",
+        "type": "catch",
+        "z": "8926a82e5f9ba386",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 920,
+        "y": 680,
+        "wires": [
+            [
+                "3c3b2ffac4a0d2b9"
+            ]
+        ]
+    },
+    {
+        "id": "3c3b2ffac4a0d2b9",
+        "type": "debug",
+        "z": "8926a82e5f9ba386",
+        "name": "CATCH ALL",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1110,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "ef45beb0bcba61d1",
+        "type": "switch",
+        "z": "8926a82e5f9ba386",
+        "name": "isError",
+        "property": "errorField",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1510,
+        "y": 560,
+        "wires": [
+            [
+                "ef6fdb3961e3d036"
+            ],
+            [
+                "248b0305570402ab"
+            ]
+        ]
+    }
+]

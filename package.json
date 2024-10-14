@@ -1,0 +1,12 @@
+{
+    "name": "node-red-tg-bot",
+    "description": "bot which can save your contact and b-day",
+    "version": "0.0.1",
+    "dependencies": {},
+    "node-red": {
+        "settings": {
+            "flowFile": "flows.json",
+            "credentialsFile": "flows_cred.json"
+        }
+    }
+}
